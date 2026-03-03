@@ -6,7 +6,7 @@ from flask import Flask, Response
 
 app = Flask(__name__)
 
-URL_TO_MONITOR = "https://www.kicker.de"  # <-- HIER DEINE ZIEL-SEITE
+URL_TO_MONITOR = "https://www.kicker.de"
 HASH_FILE = "last_hash.txt"
 
 SMTP_SERVER = "smtp.gmail.com"
@@ -16,21 +16,32 @@ EMAIL_USER = os.environ["EMAIL_USER"]
 EMAIL_PASS = os.environ["EMAIL_PASS"]
 EMAIL_TO   = os.environ["EMAIL_TO"]
 
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Website Monitoring Script)"
+}
+
 def send_email(subject, body):
     msg = f"Subject: {subject}\n\n{body}"
-    with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as s:
+    with smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=20) as s:
         s.starttls()
         s.login(EMAIL_USER, EMAIL_PASS)
         s.sendmail(EMAIL_USER, EMAIL_TO, msg)
 
 def get_hash():
-    r = requests.get(URL_TO_MONITOR, timeout=20)
+    r = requests.get(URL_TO_MONITOR, headers=HEADERS, timeout=20)
     r.raise_for_status()
     return hashlib.sha256(r.text.encode()).hexdigest()
 
+@app.route("/")
+def index():
+    return "Service läuft. Verwende /check"
+
 @app.route("/check")
 def check():
-    new_hash = get_hash()
+    try:
+        new_hash = get_hash()
+    except Exception as e:
+        return Response(f"ERROR: {e}", status=500)
 
     if os.path.exists(HASH_FILE):
         with open(HASH_FILE, "r") as f:
@@ -44,7 +55,6 @@ def check():
             with open(HASH_FILE, "w") as f:
                 f.write(new_hash)
             return Response("CHANGED", status=200)
-
     else:
         with open(HASH_FILE, "w") as f:
             f.write(new_hash)
