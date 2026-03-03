@@ -6,7 +6,7 @@ from flask import Flask, Response
 
 app = Flask(__name__)
 
-URL_TO_MONITOR = "https://example.com"  # <-- HIER DEINE ZIEL-SEITE
+URL_TO_MONITOR = "https://www.kicker.de"  # <-- HIER DEINE ZIEL-SEITE
 HASH_FILE = "last_hash.txt"
 
 SMTP_SERVER = "smtp.gmail.com"
