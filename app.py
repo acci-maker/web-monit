@@ -13,7 +13,7 @@ force_ipv4()
 
 app = Flask(__name__)
 
-URL_TO_MONITOR = "https://www.kicker.de"
+URL_TO_MONITOR = "https://www.marathondumedoc.com/en/registration-global/"
 HASH_FILE = "last_hash.txt"
 
 SMTP_SERVER = "smtp.gmail.com"
