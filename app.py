@@ -1,8 +1,15 @@
+import socket
 import requests
 import hashlib
 import smtplib
 import os
 from flask import Flask, Response
+import requests.packages.urllib3.util.connection as urllib3_cn
+
+def force_ipv4():
+    urllib3_cn.allowed_gai_family = lambda: socket.AF_INET
+
+force_ipv4()
 
 app = Flask(__name__)
 
